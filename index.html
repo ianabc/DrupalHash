@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<title>Javascript Hash Functions</title>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<script src="./DrupalHash.js" type="text/javascript"></script>
+		<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha512.js"></script>
+		<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
+		<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
+		<script type="text/javascript">
+			function calcSHA(form) {
+				if (!validateForm()) {
+					return;
+				}
+				switch (form.hashVariant.value) {
+					case 'SHA512':
+				        var iota64 = _password_itoa64();
+				        var plaintext = form.hashInputText.value;
+
+				        var password = CryptoJS.enc.Latin1.parse(plaintext);
+				        var setting = '$S$' + itoa64[form.hashCount.value] + form.hashSalt.value;
+
+				        var newhash = _password_crypt(plaintext, setting);
+				        form.hashOutputText.value = newhash;
+						break;
+					case 'MD5':
+						var hash = CryptoJS.MD5(form.hashInputText.value);
+						form.hashOutputText.value = hash;
+						break;
+					default:
+						form.hashOutputText.value = 'Unable to compute Hash';
+						break;
+				}
+			}
+
+            function formInit() {
+				var setting = _password_generate_salt(DRUPAL_HASH_COUNT);
+				var count_log2 = _password_get_count_log2(setting);
+				var salt = setting.substr(4, 8);
+				document.forms[0].hashSalt.value = salt;
+				document.forms[0].hashCount.value = count_log2;
+				hashTypeFields();
+			}
+
+            function hashTypeFields() {
+				if(document.getElementById('hashVariant').value=='SHA512') {
+					document.getElementById('SHAOptions').style.display = 'block';
+				}
+				else {
+					document.getElementById('SHAOptions').style.display = 'none';
+				}
+			}
+			
+			function validateForm() {
+		       if(document.getElementById('hashVariant').value=='SHA512') {
+				   var count_log2 = document.getElementById('hashCount').value;
+				   var salt = document.getElementById('hashSalt').value;
+				   if (count_log2 < DRUPAL_MIN_HASH_COUNT || count_log2 > DRUPAL_MAX_HASH_COUNT) {
+					   alert("Count_log2 should be an integer in the range ["+DRUPAL_MIN_HASH_COUNT+", "+DRUPAL_MAX_HASH_COUNT+"].\n\nPlease note that values larger than 15 will take a LONG time to compute.");
+					   return false;
+				   }
+				   if ((salt.length != 8) || !salt.match('^[\.\/[0-9A-Za-z]+$')) { 
+					   alert("Salt must contain exactly 8 of the following characters \n" +
+							   _password_itoa64());
+					   return false
+				   }
+				   return true;
+			   }
+			}
+		</script>
+	</head>
+	<body onload="formInit()">
+		<div id="container">
+			<form name="shaform" action="" method="get">
+				<div>
+					<label for="hashInputText">Input Text:</label>
+					<input type="password" size="75" name="hashInputText" id="hashInputText" value="" />
+				</div>
+				<div>
+					<label for="hashVariant">Hash Variant:</label>
+					<select name="hashVariant" id="hashVariant" onchange="hashTypeFields()">
+						<option value="SHA512">Drupal 7</option>
+						<option value="MD5">Drupal 5 or 6</option>
+					</select>
+				</div>
+				<div id='SHAOptions' style="display:none">
+				    <div>
+				    	<label for="hashSalt">Salt (8 char)</label>
+				    	<input type="text" size="12" name="hashSalt" id="hashSalt" value="" />
+				    </div>
+				    <div>
+				    	<label for="hashCount">Count_log2</label>
+				    	<input type="text" size="2" name="hashCount" id="hashCount" value="" />
+					</div>
+				</div>
+				<div>
+					<input type="button" name="button" onClick="calcSHA(this.form)" value="Submit" />
+				</div>
+				<div>
+					<label for="hashOutputText">Output Hash:</label>
+					<input type="text" size="75" name="hashOutputText" id="hashOutputText" style="background-color: #b1ceed" />
+				</div>
+			</form>
+		</div>
+	</body>
+</html>
+
+			
+
