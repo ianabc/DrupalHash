@@ -17,11 +17,11 @@ so shouldn't be an issue.
 History
 -------
 There is very little original code in here, most of the original code comes
-from Giannhs Apostolidhs <giannhs.apostolidhs@gmail.com> in this blog post:
+from Giannhs Apostolidhs in this blog post:
 http://giannis.e-apostolidis.gr/blog/drupal-7-password-encryption-javascript/.
 
 I have taken that code and smacked it around a bit to do what I want. The main
 change is the removal of node.js in place of CryptoJS. His code is nice enough
 but at the moment my additions/changes are an awful mess. Use at your own risk.
 
--Ian Allison <IFAllison@gmail.com>
+-Ian
